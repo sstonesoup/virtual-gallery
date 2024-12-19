@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Gallery</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        .carousel {
+            display: flex;
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .carousel img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .carousel-controls {
+            position: absolute;
+            top: 0;
+            width: 20%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .left-control {
+            left: 0;
+        }
+
+        .right-control {
+            right: 0;
+        }
+
+        .voice-indicator {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="carousel">
+        <div class="carousel-controls left-control" onclick="switchImage(-1)"></div>
+        <div class="carousel-controls right-control" onclick="switchImage(1)"></div>
+        <div class="carousel-images">
+            <img src="images/image1.jpg" alt="North">
+            <img src="images/image2.jpg" alt="East" style="display: none;">
+            <img src="images/image3.jpg" alt="South" style="display: none;">
+            <img src="images/image4.jpg" alt="West" style="display: none;">
+        </div>
+    </div>
+    <div class="voice-indicator">Connecting to voice...</div>
+
+    <script>
+        let currentIndex = 0;
+        const images = document.querySelectorAll('.carousel-images img');
+
+        function switchImage(direction) {
+            images[currentIndex].style.display = 'none';
+            currentIndex = (currentIndex + direction + images.length) % images.length;
+            images[currentIndex].style.display = 'block';
+        }
+
+        // WebRTC Voice Chat
+        const voiceIndicator = document.querySelector('.voice-indicator');
+        const peerConnection = new RTCPeerConnection();
+
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+                voiceIndicator.textContent = 'Connected to voice chat';
+            })
+            .catch(error => {
+                console.error('Error accessing microphone:', error);
+                voiceIndicator.textContent = 'Microphone access denied';
+            });
+
+        // You will need a signaling server to connect peers.
+        // Example signaling can be done with Socket.IO or WebSocket for real-time communication.
+    </script>
+</body>
+</html>
